@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>上傳DXF文件進行分析</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-size: 16px;
+            color: #333;
+        }
+        input[type="file"], select, input[type="submit"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            background-color: #5cb85c;
+            color: white;
+            border: 0;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #4cae4c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>上傳DXF文件進行分析</h1>
+        <p>請注意：DXF文件僅需"計畫範圍線"即可  P.S 座標系統僅針對TWD97使用</p>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <label for="file">選擇DXF文件:</label>
+            <input type="file" name="file" id="file" required><br><br>
+            
+            <label for="region">選擇地區:</label>
+            <select name="region" id="region" required>
+                {% for region in regions %}
+                    <option value="{{ region }}">{{ region }}</option>
+                {% endfor %}
+            </select><br><br>
+            
+            <input type="submit" value="上傳並分析">
+        </form>
+    </div>
+</body>
+</html>

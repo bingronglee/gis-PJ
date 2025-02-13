@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分析結果</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .download-btn {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>分析結果</h1>
+        <table class="table table-bordered mt-4">
+            <thead class="thead-light">
+                <tr>
+                    <th></th>
+                    <th>透天</th>
+                    <th>公寓</th>
+                    <th>大樓</th>
+                    <th>總計</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>戶數</th>
+                    <td>{{ "{:,}".format(result['num_houses']) }}</td>
+                    <td>{{ "{:,}".format(result['num_apartments']) }}</td>
+                    <td>{{ "{:,}".format(result['num_buildings']) }}</td>
+                    <td>{{ "{:,}".format(result['total_houses']) }}</td>
+                </tr>
+                <tr>
+                    <th>棟數</th>
+                    <td>{{ "{:,}".format(result['num_house_buildings']) }}</td>
+                    <td>{{ "{:,}".format(result['num_apartment_buildings']) }}</td>
+                    <td>{{ "{:,}".format(result['num_building_structures']) }}</td>
+                    <td>{{ "{:,}".format(result['total_buildings']) }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="download-btn">
+            <a href="{{ url_for('download_file', filename=download_link) }}" class="btn btn-primary">下載展點門牌DXF文件</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
