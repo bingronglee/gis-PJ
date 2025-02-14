@@ -188,6 +188,3 @@ if __name__ == '__main__':
         os.makedirs('outputs')
 
     app.run(host='0.0.0.0', port=5000, debug=True)
-
-
-    # This is a test modification to main.py
