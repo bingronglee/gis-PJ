@@ -43,6 +43,24 @@
         input[type="submit"]:hover {
             background-color: #4cae4c;
         }
+
+        /* ---  修改 CSS 樣式：創作者資訊區塊  --- */
+        .creator-info {
+            position: fixed; /* 固定定位，相對於視窗 */
+            bottom: 10px;    /* 距離視窗底部 10px */
+            right: 10px;     /* 距離視窗右側 10px */
+            font-size: 0.75em; /* 字體大小再縮小一點 */
+            color: #999;      /* 文字顏色再設為更淺灰色，更像註解 */
+            text-align: right; /* 文字對齊右側 */
+            line-height: 1.4; /* 行高調整，讓多行文字不會太擠 */
+        }
+
+        /* ---  新增 CSS 樣式：創作者資訊內的行  --- */
+        .creator-info-line {
+            margin: 0; /* 移除預設 margin */
+            padding: 0; /* 移除預設 padding */
+        }
+
     </style>
 </head>
 <body>
@@ -52,16 +70,20 @@
         <form action="/upload" method="post" enctype="multipart/form-data">
             <label for="file">選擇DXF文件:</label>
             <input type="file" name="file" id="file" required><br><br>
-            
+
             <label for="region">選擇地區:</label>
             <select name="region" id="region" required>
                 {% for region in regions %}
                     <option value="{{ region }}">{{ region }}</option>
                 {% endfor %}
             </select><br><br>
-            
+
             <input type="submit" value="上傳並分析">
         </form>
     </div>
+
+    <div class="creator-info">
+        <p class="creator-info-line">// 版本：v1.0.3</p>  <p class="creator-info-line">// 更新日期：2024-05-16</p> <p class="creator-info-line">© 聯聖工程_秉融</p>  </div>
+
 </body>
 </html>
