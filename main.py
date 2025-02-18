@@ -84,7 +84,7 @@ def perform_common_analysis(dxf_file_path, csv_file_path):
     # 提取座標點
     coords = np.array([(geom.x, geom.y) for geom in intersection.geometry])
 
-    # 使用KDTree找出0.17單位內的鄰居
+    # 使用KDTree找出0.17m內的鄰居都視為同戶
     tree = cKDTree(coords)
     groups_indices = tree.query_ball_tree(tree, r=0.17)
 
