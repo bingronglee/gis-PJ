@@ -9,12 +9,23 @@
         .download-btn {
             margin-top: 20px;
         }
+        .result-table-title {
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .no-data { /*  新增 "查無資料" 樣式  */
+            font-style: italic; /*  斜體  */
+            color: #777; /*  灰色  */
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h1>分析結果</h1>
-        <table class="table table-bordered mt-4">
+
+        <h2 class="result-table-title">門牌資料分析結果</h2>
+        <table class="table table-bordered mt-2">
             <thead class="thead-light">
                 <tr>
                     <th></th>
@@ -27,21 +38,146 @@
             <tbody>
                 <tr>
                     <th>戶數</th>
-                    <td>{{ "{:,}".format(result['num_houses']) }}</td>
-                    <td>{{ "{:,}".format(result['num_apartments']) }}</td>
-                    <td>{{ "{:,}".format(result['num_buildings']) }}</td>
-                    <td>{{ "{:,}".format(result['total_houses']) }}</td>
+                    <td>
+                        {% if result %}  {#  如果 result 存在 (不是 None)  #}
+                            {{ "{:,}".format(result['num_houses']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span> {#  顯示 "查無資料"  #}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if result %}
+                            {{ "{:,}".format(result['num_apartments']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if result %}
+                            {{ "{:,}".format(result['num_buildings']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if result %}
+                            {{ "{:,}".format(result['total_houses']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <th>棟數</th>
-                    <td>{{ "{:,}".format(result['num_house_buildings']) }}</td>
-                    <td>{{ "{:,}".format(result['num_apartment_buildings']) }}</td>
-                    <td>{{ "{:,}".format(result['num_building_structures']) }}</td>
-                    <td>{{ "{:,}".format(result['total_buildings']) }}</td>
+                    <td>
+                        {% if result %}
+                            {{ "{:,}".format(result['num_house_buildings']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if result %}
+                            {{ "{:,}".format(result['num_apartment_buildings']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if result %}
+                            {{ "{:,}".format(result['num_building_structures']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if result %}
+                            {{ "{:,}".format(result['total_buildings']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
                 </tr>
             </tbody>
         </table>
-        
+
+        <h2 class="result-table-title">已接管門牌資料分析結果</h2>
+        <table class="table table-bordered mt-2">
+            <thead class="thead-light">
+                <tr>
+                    <th></th>
+                    <th>透天</th>
+                    <th>公寓</th>
+                    <th>大樓</th>
+                    <th>總計</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>戶數</th>
+                    <td>
+                        {% if wtc_result %} {#  如果 wtc_result 存在 (不是 None)  #}
+                            {{ "{:,}".format(wtc_result['num_houses']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span> {#  顯示 "查無資料"  #}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if wtc_result %}
+                            {{ "{:,}".format(wtc_result['num_apartments']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if wtc_result %}
+                            {{ "{:,}".format(wtc_result['num_buildings']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if wtc_result %}
+                            {{ "{:,}".format(wtc_result['total_houses']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>棟數</th>
+                    <td>
+                        {% if wtc_result %}
+                            {{ "{:,}".format(wtc_result['num_house_buildings']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if wtc_result %}
+                            {{ "{:,}".format(wtc_result['num_apartment_buildings']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if wtc_result %}
+                            {{ "{:,}".format(wtc_result['num_building_structures']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if wtc_result %}
+                            {{ "{:,}".format(wtc_result['total_buildings']) }}
+                        {% else %}
+                            <span class="no-data">查無資料</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
         <div class="download-btn">
             <a href="{{ url_for('download_file', filename=download_link) }}" class="btn btn-primary">下載展點門牌DXF文件</a>
         </div>
