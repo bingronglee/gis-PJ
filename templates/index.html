@@ -1,89 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>上傳DXF文件進行分析</title>
+    <title>門牌與建物型態分析系統</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 20px;
+            color: #333;
+            line-height: 1.6;
         }
         .container {
-            max-width: 600px;
-            margin: 0 auto;
+            max-width: 700px;
+            margin: 30px auto;
             background: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #333;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        p {
+            margin-bottom: 20px;
+            color: #555;
+            text-align: justify;
+            text-justify: inter-word;
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
         label {
-            font-size: 16px;
-            color: #333;
+            font-weight: 600;
         }
         input[type="file"], select, input[type="submit"] {
-            padding: 10px;
+            padding: 12px 15px;
             border: 1px solid #ddd;
             border-radius: 5px;
+            font-size: 16px;
         }
         input[type="submit"] {
-            background-color: #5cb87c;
+            background-color: #28a745;
             color: white;
             border: 0;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
         input[type="submit"]:hover {
-            background-color: #4cae4c;
+            background-color: #218838;
         }
-
-        /* ---  修改 CSS 樣式：創作者資訊區塊  --- */
         .creator-info {
-            position: fixed; /* 固定定位，相對於視窗 */
-            bottom: 10px;    /* 距離視窗底部 10px */
-            right: 10px;     /* 距離視窗右側 10px */
-            font-size: 0.75em; /* 字體大小再縮小一點 */
-            color: #999;      /* 文字顏色再設為更淺灰色，更像註解 */
-            text-align: right; /* 文字對齊右側 */
-            line-height: 1.4; /* 行高調整，讓多行文字不會太擠 */
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 1em;
+            color: #777;
+            text-align: right;
+            line-height: 1.5;
+            white-space: nowrap;
         }
-
-        /* ---  新增 CSS 樣式：創作者資訊內的行  --- */
         .creator-info-line {
-            margin: 0; /* 移除預設 margin */
-            padding: 0; /* 移除預設 padding */
+            margin: 2px 0;
         }
-
+        .note { /* 新增樣式 */
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 10px;
+            white-space: pre-line; /* 保留換行 */
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>上傳DXF文件進行分析</h1>
-        <p>請注意：DXF文件僅需"計畫範圍線"即可  P.S 座標系統僅針對TWD97使用</p>
+        <h1>門牌與建物型態分析系統</h1>
+        <p>上傳DXF格式的計畫範圍線，可以分析範圍內的門牌數量及建物型態統計資訊，可以初步掌握計畫區域的建物分布狀況。<p class="note">請注意：DXF文件僅需"計畫範圍線"即可\n P.S 座標系統僅針對TWD97使用</p></p>
         <form action="/upload" method="post" enctype="multipart/form-data">
             <label for="file">選擇DXF文件:</label>
-            <input type="file" name="file" id="file" required><br><br>
+            <input type="file" name="file" id="file" required>
 
             <label for="region">選擇地區:</label>
             <select name="region" id="region" required>
                 {% for region in regions %}
                     <option value="{{ region }}">{{ region }}</option>
                 {% endfor %}
-            </select><br><br>
+            </select>
 
             <input type="submit" value="上傳並分析">
         </form>
     </div>
 
     <div class="creator-info">
-        <p class="creator-info-line">// 版本：v1.0.3</p>  <p class="creator-info-line">// 更新日期：2024-05-16</p> <p class="creator-info-line">© 聯聖工程_秉融</p>  </div>
-
+        <p class="creator-info-line">// 版本：v1.0.3</p>
+        <p class="creator-info-line">// 更新日期：2024-05-16</p>
+        <p class="creator-info-line">© 聯聖工程_秉融</p>
+    </div>
 </body>
 </html>
