@@ -87,7 +87,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <th>戶數</th>
+                        <th>總戶數</th>
                         <td>
                             {% if result %}
                                 {{ "{:,}".format(result['num_houses']) }}
@@ -118,7 +118,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>棟數</th>
+                        <th>總棟數</th>
                         <td>
                             {% if result %}
                                 {{ "{:,}".format(result['num_house_buildings']) }}
@@ -148,25 +148,8 @@
                             {% endif %}
                         </td>
                     </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <h2 class="result-table-title">已接管門牌資料分析結果</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered mt-3">
-                <thead class="thead-light">
                     <tr>
-                        <th></th>
-                        <th>透天</th>
-                        <th>公寓</th>
-                        <th>大樓</th>
-                        <th>總計</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>戶數</th>
+                        <th>已接管戶數</th>
                         <td>
                             {% if wtc_result %}
                                 {{ "{:,}".format(wtc_result['num_houses']) }}
@@ -197,7 +180,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>棟數</th>
+                        <th>已接管棟數</th>
                         <td>
                             {% if wtc_result %}
                                 {{ "{:,}".format(wtc_result['num_house_buildings']) }}
@@ -230,6 +213,32 @@
                 </tbody>
             </table>
         </div>
+
+        {% if district_stats %}
+        <h2 class="result-table-title">範圍內各行政區統計結果</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered mt-3">
+                <thead class="thead-light">
+                    <tr>
+                        <th>鄉鎮市區代碼</th>
+                        <th>總戶數</th>
+                        <th>已接管戶數</th>
+                        <th>接管率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for district in district_stats %}
+                    <tr>
+                        <td>{{ district.code }}</td>
+                        <td>{{ "{:,}".format(district.total_houses) }}</td>
+                        <td>{{ "{:,}".format(district.wtc_houses) }}</td>
+                        <td>{{ "{:.1f}%".format(district.connection_rate) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
 
         <div class="download-btn">
             <a href="{{ url_for('download_file', filename=download_link) }}" class="btn btn-primary">下載展點門牌DXF文件</a>
