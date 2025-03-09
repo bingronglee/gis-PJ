@@ -71,12 +71,29 @@ def upload_file():
         # 刪除臨時上傳文件
         os.remove(dxf_file_path)
 
-        # 渲染結果頁面，並提供生成的 DXF 檔下載鏈接，同時傳遞兩組分析結果和警告訊息
+        # 更新鄉鎮市區統計的已接管戶數和接管率
+        if result and wtc_result and 'district_stats' in result:
+            district_stats = result['district_stats']
+            for district in district_stats:
+                district_code = district['code']
+                # 計算已接管戶數
+                if not wtc_intersection.empty and '鄉鎮市區代碼' in wtc_intersection.columns:
+                    wtc_district_data = wtc_intersection[wtc_intersection['鄉鎮市區代碼'] == district_code]
+                    wtc_district_grouped = wtc_district_data.groupby('group').size().reset_index(name='count')
+                    district['wtc_houses'] = int(wtc_district_grouped['count'].sum()) if not wtc_district_grouped.empty else 0
+                # 計算接管率
+                if district['total_houses'] > 0:
+                    district['connection_rate'] = round((district['wtc_houses'] / district['total_houses']) * 100, 3)
+                else:
+                    district['connection_rate'] = 0.000
+
+        # 渲染結果頁面，並提供生成的 DXF 檔下載鏈接，同時傳遞分析結果和警告訊息
         return render_template('result.html',
                               result=result,
                               wtc_result=wtc_result,
                               download_link=os.path.basename(new_dxf_path),
-                              warning_message=warning_message)
+                              warning_message=warning_message,
+                              district_stats=result['district_stats'] if result and 'district_stats' in result else None)
     else:
         return redirect(url_for('index'))
 
@@ -91,12 +108,19 @@ def perform_common_analysis(dxf_file_path, csv_file_path):
 
     dxf_gdf = gpd.GeoDataFrame(geometry=polygons)
 
-    # 優化 CSV 檔案讀取: 加入 dtype 參數 
-    csv_data = pd.read_csv(
-        csv_file_path,
-        usecols=['X', 'Y'],
-        dtype={'X': float, 'Y': float}
-    )
+    # 優化 CSV 檔案讀取: 根據檔案內容決定要讀取的欄位
+    required_columns = ['X', 'Y']
+    csv_data = pd.read_csv(csv_file_path)
+    
+    # 檢查CSV是否包含鄉鎮市區代碼欄位
+    if '鄉鎮市區代碼' in csv_data.columns:
+        required_columns.append('鄉鎮市區代碼')
+        csv_data = csv_data[required_columns]
+        csv_data = csv_data.astype({'X': float, 'Y': float, '鄉鎮市區代碼': str})
+    else:
+        csv_data = csv_data[required_columns]
+        csv_data = csv_data.astype({'X': float, 'Y': float})
+        
     csv_data['geometry'] = gpd.points_from_xy(csv_data['X'], csv_data['Y'])
     gdf_csv = gpd.GeoDataFrame(csv_data, geometry='geometry')
 
@@ -141,7 +165,8 @@ def analyze_dxf_result(intersection, grouped):
             'num_buildings': 0,
             'num_building_structures': 0,
             'total_houses': 0,
-            'total_buildings': 0
+            'total_buildings': 0,
+            'district_stats': []
         }
 
     # 計算透天、公寓和大樓的戶數與棟數 
@@ -158,6 +183,31 @@ def analyze_dxf_result(intersection, grouped):
     total_houses = num_houses + num_apartments + num_buildings
     total_buildings = num_house_buildings + num_apartment_buildings + num_building_structures
 
+    # 計算鄉鎮市區統計
+    district_stats = []
+    if not intersection.empty:
+        if '鄉鎮市區代碼' in intersection.columns:
+            district_groups = intersection.groupby('鄉鎮市區代碼')
+            for district_code, district_data in district_groups:
+                district_grouped = district_data.groupby('group').size().reset_index(name='count')
+                district_total = int(district_grouped['count'].sum())
+                district_stats.append({
+                    'code': district_code,
+                    'total_houses': district_total,
+                    'wtc_houses': 0,  # 這個值會在後續處理中更新
+                    'connection_rate': 0.0  # 這個值會在後續處理中更新
+                })
+        else:
+            # 如果沒有鄉鎮市區代碼，將所有資料視為一個區域
+            total_grouped = intersection.groupby('group').size().reset_index(name='count')
+            total_houses = int(total_grouped['count'].sum())
+            district_stats.append({
+                'code': 'ALL',
+                'total_houses': total_houses,
+                'wtc_houses': 0,
+                'connection_rate': 0.0
+            })
+
     # 返回結果 
     return {
         'num_houses': num_houses,
@@ -167,7 +217,8 @@ def analyze_dxf_result(intersection, grouped):
         'num_buildings': num_buildings,
         'num_building_structures': num_building_structures,
         'total_houses': total_houses,
-        'total_buildings': total_buildings
+        'total_buildings': total_buildings,
+        'district_stats': district_stats
     }
 
 def analyze_and_export_dxf(dxf_file_path, csv_file_path, intersection, grouped):
