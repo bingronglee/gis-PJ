@@ -14,8 +14,37 @@ REGION_CSV_MAP = {
     '台中': 'TC.csv',
     '台南': 'TN.csv',
     '高雄': 'KH.csv',
-    '雲林': 'YL.csv'
+    '雲林': 'YL.csv',
+    '彰化': 'CH.csv'  
 }
+
+# 讀取行政區代碼與名稱的映射
+def load_district_code_map():
+    district_map = {}
+    # 嘗試多個可能的檔位置，使用英文檔案名
+    possible_paths = [
+        'district_code_map.csv',  # 專案根目錄
+        os.path.join('data', 'district_code_map.csv'),  # data目錄
+        os.path.join(os.path.dirname(__file__), 'district_code_map.csv')  # 腳本所在目錄
+    ]
+    
+    for path in possible_paths:
+        try:
+            if os.path.exists(path):
+                print(f"找到行政區代碼映射檔案: {path}")
+                district_df = pd.read_csv(path, sep='\t')
+                for _, row in district_df.iterrows():
+                    if pd.notna(row['區域代碼']):  # 確保代碼不是NaN
+                        district_map[str(int(row['區域代碼']))] = row['行政區名稱']
+                return district_map
+        except Exception as e:
+            print(f"嘗試讀取 {path} 時出錯: {e}")
+    
+    print("警告: 無法找到行政區代碼映射檔案，將使用空映射")
+    return district_map
+
+# 全域變量，程式啟動時加載
+DISTRICT_CODE_NAME_MAP = load_district_code_map()
 
 @app.route('/')
 def index():
@@ -56,9 +85,13 @@ def upload_file():
 
         # 檢查是否兩組結果皆為空（所有值為 0）
         warning_message = None
-        if isinstance(result, dict) and all(v == 0 for v in result.values()) and \
-           isinstance(wtc_result, dict) and all(v == 0 for v in wtc_result.values()):
-            warning_message = "空間交集為空集合，沒有門牌點在DXF範圍內。請檢查DXF範圍線是否正確，或確認所選縣市是否正確。"
+        if isinstance(result, dict) and isinstance(wtc_result, dict):
+            # 只檢查數值類型的鍵值對
+            result_empty = all(v == 0 for k, v in result.items() if isinstance(v, (int, float)) and k != 'district_stats')
+            wtc_empty = all(v == 0 for k, v in wtc_result.items() if isinstance(v, (int, float)) and k != 'district_stats')
+            
+            if result_empty and wtc_empty:
+                warning_message = "空間交集為空集合，沒有門牌點在DXF範圍內。請檢查DXF範圍線是否正確，或確認所選縣市是否正確。"
 
         # 檢查分析結果是否為空，如果是空結果，設定為 None
         if not isinstance(result, dict):
@@ -75,7 +108,11 @@ def upload_file():
         if result and wtc_result and 'district_stats' in result:
             district_stats = result['district_stats']
             for district in district_stats:
-                district_code = district['code']
+                # 從name_code中提取區功能變數代碼（假設格式為"名稱 (代碼)"）
+                district_code = district['name_code'].split('(')[-1].strip(')')
+                if district_code == '全部區域':  # 處理特殊情況
+                    district_code = 'ALL'
+                
                 # 計算已接管戶數
                 if not wtc_intersection.empty and '鄉鎮市區代碼' in wtc_intersection.columns:
                     wtc_district_data = wtc_intersection[wtc_intersection['鄉鎮市區代碼'] == district_code]
@@ -155,7 +192,7 @@ def perform_common_analysis(dxf_file_path, csv_file_path):
     return intersection, grouped
 
 def analyze_dxf_result(intersection, grouped):
-    # 檢查 grouped 是否為空 DataFrame（移除 print 警告）
+    # 檢查 grouped 是否為空 DataFrame
     if grouped.empty:
         return {
             'num_houses': 0,
@@ -191,8 +228,15 @@ def analyze_dxf_result(intersection, grouped):
             for district_code, district_data in district_groups:
                 district_grouped = district_data.groupby('group').size().reset_index(name='count')
                 district_total = int(district_grouped['count'].sum())
+                
+                # 從映射中獲取行政區名稱，如果沒有則使用代碼
+                district_name = DISTRICT_CODE_NAME_MAP.get(district_code, f"未知區域")
+                
+                # 合併行政區名稱和代碼
+                district_name_code = f"{district_name} ({district_code})"
+                
                 district_stats.append({
-                    'code': district_code,
+                    'name_code': district_name_code,  # 合併名稱和代碼
                     'total_houses': district_total,
                     'wtc_houses': 0,  # 這個值會在後續處理中更新
                     'connection_rate': 0.0  # 這個值會在後續處理中更新
@@ -202,7 +246,7 @@ def analyze_dxf_result(intersection, grouped):
             total_grouped = intersection.groupby('group').size().reset_index(name='count')
             total_houses = int(total_grouped['count'].sum())
             district_stats.append({
-                'code': 'ALL',
+                'name_code': '全部區域',  # 合併名稱和代碼
                 'total_houses': total_houses,
                 'wtc_houses': 0,
                 'connection_rate': 0.0
