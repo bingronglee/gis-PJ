@@ -220,7 +220,7 @@
             <table class="table table-bordered mt-3">
                 <thead class="thead-light">
                     <tr>
-                        <th>鄉鎮市區代碼</th>
+                        <th>行政區</th>
                         <th>總戶數</th>
                         <th>已接管戶數</th>
                         <th>接管率</th>
@@ -229,7 +229,7 @@
                 <tbody>
                     {% for district in district_stats %}
                     <tr>
-                        <td>{{ district.code }}</td>
+                        <td>{{ district.name_code }}</td>
                         <td>{{ "{:,}".format(district.total_houses) }}</td>
                         <td>{{ "{:,}".format(district.wtc_houses) }}</td>
                         <td>{{ "{:.1f}%".format(district.connection_rate) }}</td>
